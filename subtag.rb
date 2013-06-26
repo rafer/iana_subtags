@@ -1,16 +1,15 @@
-#!/usr/bin/env ruby
-
 require "pathname"
 
 class Subtag
   extend Enumerable
 
   def self.all
-    Pathname.new("language-subtag-registry").
-      read.split("%%").map { |r| new(r) }.
-      drop(2).
-      reject { |s| s.value.nil? }.
-      reject { |s| s.type == "extlang" }
+    @all ||= Pathname.new("language-subtag-registry").
+      read.split("%%").drop(1).map { |r| new(r) }
+  end
+
+  def self.by_type
+    @by_type ||= all.group_by(&:type)
   end
 
   def self.each(&block)
@@ -30,13 +29,15 @@ class Subtag
     field("Type")
   end
 
+  def description
+    field("Description")
+  end
+
   def value
     field("Subtag")
   end
 
   def inspect
-    "Type: #{type}, Subtag: #{value}"
+    "Type: #{type.inspect}, Subtag: #{value.inspect}, Description: #{description.inspect}"
   end
 end
-
-p Subtag.first
